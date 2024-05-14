@@ -1,5 +1,8 @@
 # Descrição
-Esse script simples serve para verificar a integralidade das pastas e identificar que estão ocupando muito espaço no drive compartilhado. 
+Esse script simples serve para verificar:
+1. A integralidade do nome das pastas;
+2. Identificar pastas que estão ocupando muito espaço;
+3. Copiar os Modelos da pasta Raíz (zMODELOS) para a Pasta Modelos (MODELOS); 
 
 ## ToDo
 1. Adicionar um CRON Job Diário para Execução do Script; 
