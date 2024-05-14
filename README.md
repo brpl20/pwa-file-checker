@@ -5,6 +5,6 @@ Esse script simples serve para verificar:
 3. Copiar os Modelos da pasta Raíz (zMODELOS) para a Pasta Modelos (MODELOS); 
 
 ## ToDo
-1. Adicionar um CRON Job Diário para Execução do Script; 
+1. Adicionar um CRON Job Diário para Execução do Script (linux-bruno); 
 2. Transformar em um executável para utilização em Windows (Espcialmente quando o script acima não puder ser executado);
-3. Criar um endpoint para enviar as informações e depois comunicar a todos;  
+3. Criar um endpoint para enviar as informações e depois comunicar a todos; 
