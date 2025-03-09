@@ -64,12 +64,13 @@ class S3Backup:
                 logger.error(f"Error checking bucket: {e}")
                 return False
     
-    def backup_directory(self, directory_path):
+    def backup_directory(self, directory_path, max_files=100):
         """
         Backup a directory to S3
         
         Args:
             directory_path (Path): Path to directory to backup
+            max_files (int): Maximum number of files to backup (for testing/safety)
             
         Returns:
             bool: True if backup was successful
@@ -93,26 +94,57 @@ class S3Backup:
             # Walk through the directory and upload all files
             for root, _, files in os.walk(directory_path):
                 for file in files:
+                    # Skip hidden files and common system files
+                    if file.startswith('.') or file in ['Thumbs.db', 'desktop.ini', '.DS_Store']:
+                        continue
+                        
+                    # Limit the number of files for testing/safety
+                    if file_count >= max_files:
+                        logger.info(f"Reached maximum file limit ({max_files}). Stopping backup.")
+                        break
+                        
                     local_path = Path(root) / file
-                    # Create the S3 key (path in the bucket)
-                    relative_path = local_path.relative_to(directory_path.parent)
-                    s3_key = f"{backup_prefix}/{relative_path}"
                     
+                    # Skip files larger than 100MB for safety
+                    if local_path.stat().st_size > 100 * 1024 * 1024:
+                        logger.warning(f"Skipping large file {local_path} (> 100MB)")
+                        continue
+                    
+                    # Create the S3 key (path in the bucket)
                     try:
+                        relative_path = local_path.relative_to(directory_path.parent)
+                        s3_key = f"{backup_prefix}/{relative_path}"
+                        
+                        logger.info(f"Uploading {local_path} to {s3_key}")
                         self.s3_client.upload_file(
                             str(local_path),
                             self.bucket_name,
                             s3_key
                         )
                         file_count += 1
+                        
+                        # Print progress every 10 files
+                        if file_count % 10 == 0:
+                            logger.info(f"Uploaded {file_count} files so far...")
+                            
                     except ClientError as e:
                         logger.error(f"Failed to upload {local_path}: {e}")
                         success = False
+                    except Exception as e:
+                        logger.error(f"Error processing {local_path}: {str(e)}")
+                        success = False
+                
+                # Break out of the outer loop too if we hit the file limit
+                if file_count >= max_files:
+                    break
             
             if success:
                 logger.info(f"Successfully backed up {file_count} files from {directory_path} to S3")
             return success
             
+        except KeyboardInterrupt:
+            logger.warning("Backup interrupted by user after uploading {file_count} files")
+            return False
         except Exception as e:
             logger.error(f"Error during backup: {e}")
             return False

@@ -59,10 +59,15 @@ def main():
         print(f"{folder}: {size:,} MB")
 
     print("\n=== Replacing Model Files ===")
-    if file_ops.replace_model_files():
-        print("✓ Model files successfully replaced")
-    else:
-        print("✗ Failed to replace model files")
+    try:
+        if file_ops.replace_model_files():
+            print("✓ Model files successfully replaced")
+        else:
+            print("✗ Failed to replace model files")
+    except KeyboardInterrupt:
+        print("\n⚠️ Model file replacement interrupted by user")
+    except Exception as e:
+        print(f"✗ Error replacing model files: {str(e)}")
 
     print("\n=== Checking Nonconforming Names ===")
     nonconforming = file_ops.check_nonconforming_names()
@@ -122,17 +127,32 @@ def main():
         print("⚠️ AWS credentials not set. Skipping backup.")
         print("To enable backup, set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables.")
     else:
-        # Initialize S3 backup
-        s3_backup = S3Backup(aws_region='us-west-2', bucket_name='lzt-backup-personal')
-        
-        # Backup the base directory
-        if s3_backup.backup_directory(BASE_DIR):
-            print("✓ Successfully backed up to AWS S3")
-        else:
-            print("✗ Failed to backup to AWS S3")
-            print("  Check logs for details and verify your AWS credentials have S3 permissions.")
+        # Ask user if they want to run the backup
+        try:
+            response = input("Do you want to run the AWS S3 backup? (y/n): ").strip().lower()
+            if response == 'y':
+                # Initialize S3 backup
+                s3_backup = S3Backup(aws_region='us-west-2', bucket_name='lzt-backup-personal')
+                
+                # Backup with a limited number of files for safety
+                max_files = 50
+                print(f"Running backup with max {max_files} files for safety...")
+                if s3_backup.backup_directory(BASE_DIR, max_files=max_files):
+                    print("✓ Successfully backed up to AWS S3")
+                else:
+                    print("✗ Failed to backup to AWS S3")
+                    print("  Check logs for details and verify your AWS credentials have S3 permissions.")
+            else:
+                print("Backup skipped by user.")
+        except KeyboardInterrupt:
+            print("\nBackup skipped due to user interruption.")
     
     print("\n=== Operation Complete ===\n")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\nOperation interrupted by user")
+    except Exception as e:
+        print(f"\nError: {str(e)}")
