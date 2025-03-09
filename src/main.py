@@ -1,11 +1,27 @@
 # src/main.py
 import os
 import logging
+import sys
 from pathlib import Path
-from src.utils.folder_checker import FolderChecker
-from src.utils.file_operations import FileOperations
-from src.utils.backup import S3Backup
-from src.config.settings import BASE_DIR, CONSULTAS_DIR
+
+# Add project root to Python path if needed
+current_file = Path(__file__).resolve()
+project_root = current_file.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+# Now import the modules
+try:
+    from src.utils.folder_checker import FolderChecker
+    from src.utils.file_operations import FileOperations
+    from src.utils.backup import S3Backup
+    from src.config.settings import BASE_DIR, CONSULTAS_DIR
+except ModuleNotFoundError:
+    # If running from within src directory
+    from utils.folder_checker import FolderChecker
+    from utils.file_operations import FileOperations
+    from utils.backup import S3Backup
+    from config.settings import BASE_DIR, CONSULTAS_DIR
 
 # Custom formatter without INFO: __main__:
 class CustomFormatter(logging.Formatter):

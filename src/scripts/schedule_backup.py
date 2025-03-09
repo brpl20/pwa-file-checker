@@ -11,8 +11,13 @@ from datetime import datetime
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.utils.backup import S3Backup
-from src.config.settings import BASE_DIR
+# Try both import styles to handle running from different directories
+try:
+    from src.utils.backup import S3Backup
+    from src.config.settings import BASE_DIR
+except ModuleNotFoundError:
+    from utils.backup import S3Backup
+    from config.settings import BASE_DIR
 
 # Setup logging
 logging.basicConfig(
