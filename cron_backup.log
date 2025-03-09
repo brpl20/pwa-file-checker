@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/Users/brpl20/code/pwa-file-checker/src/scripts/schedule_backup.py", line 16, in <module>
+    from src.utils.backup import S3Backup
+  File "/Users/brpl20/code/pwa-file-checker/src/utils/__init__.py", line 6, in <module>
+    from .file_operations import FileOperations
+  File "/Users/brpl20/code/pwa-file-checker/src/utils/file_operations.py", line 8, in <module>
+    from src.config.settings import (
+  File "/Users/brpl20/code/pwa-file-checker/src/config/__init__.py", line 6, in <module>
+    from .settings import *
+  File "/Users/brpl20/code/pwa-file-checker/src/config/settings.py", line 3, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/brpl20/code/pwa-file-checker/src/scripts/schedule_backup.py", line 19, in <module>
+    from utils.backup import S3Backup
+ModuleNotFoundError: No module named 'utils'
