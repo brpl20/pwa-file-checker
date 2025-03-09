@@ -1,8 +1,10 @@
 # src/main.py
+import os
 import logging
 from pathlib import Path
 from src.utils.folder_checker import FolderChecker
 from src.utils.file_operations import FileOperations
+from src.utils.backup import S3Backup
 from src.config.settings import BASE_DIR, CONSULTAS_DIR
 
 # Custom formatter without INFO: __main__:
@@ -95,6 +97,20 @@ def main():
     else:
         print("No naming issues found.")
 
+    print("\n=== Backing Up to AWS S3 ===")
+    # Set AWS credentials as environment variables
+    os.environ['AWS_ACCESS_KEY_ID'] = 'YOUR_AWS_ACCESS_KEY_ID'  # Replace with secure method
+    os.environ['AWS_SECRET_ACCESS_KEY'] = 'YOUR_AWS_SECRET_ACCESS_KEY'  # Replace with secure method
+    
+    # Initialize S3 backup
+    s3_backup = S3Backup(aws_region='us-west-2', bucket_name='lzt-backup')
+    
+    # Backup the base directory
+    if s3_backup.backup_directory(BASE_DIR):
+        print("✓ Successfully backed up to AWS S3")
+    else:
+        print("✗ Failed to backup to AWS S3")
+    
     print("\n=== Operation Complete ===\n")
 
 if __name__ == "__main__":
