@@ -98,18 +98,23 @@ def main():
         print("No naming issues found.")
 
     print("\n=== Backing Up to AWS S3 ===")
-    # Set AWS credentials as environment variables
-    os.environ['AWS_ACCESS_KEY_ID'] = 'YOUR_AWS_ACCESS_KEY_ID'  # Replace with secure method
-    os.environ['AWS_SECRET_ACCESS_KEY'] = 'YOUR_AWS_SECRET_ACCESS_KEY'  # Replace with secure method
+    # Check if AWS credentials are set
+    aws_key = os.environ.get('AWS_ACCESS_KEY_ID')
+    aws_secret = os.environ.get('AWS_SECRET_ACCESS_KEY')
     
-    # Initialize S3 backup
-    s3_backup = S3Backup(aws_region='us-west-2', bucket_name='lzt-backup')
-    
-    # Backup the base directory
-    if s3_backup.backup_directory(BASE_DIR):
-        print("✓ Successfully backed up to AWS S3")
+    if not aws_key or not aws_secret:
+        print("⚠️ AWS credentials not set. Skipping backup.")
+        print("To enable backup, set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables.")
     else:
-        print("✗ Failed to backup to AWS S3")
+        # Initialize S3 backup
+        s3_backup = S3Backup(aws_region='us-west-2', bucket_name='lzt-backup-personal')
+        
+        # Backup the base directory
+        if s3_backup.backup_directory(BASE_DIR):
+            print("✓ Successfully backed up to AWS S3")
+        else:
+            print("✗ Failed to backup to AWS S3")
+            print("  Check logs for details and verify your AWS credentials have S3 permissions.")
     
     print("\n=== Operation Complete ===\n")
 

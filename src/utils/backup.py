@@ -57,6 +57,9 @@ class S3Backup:
                 except ClientError as create_error:
                     logger.error(f"Failed to create bucket: {create_error}")
                     return False
+            elif error_code == '403':
+                logger.error(f"Access denied to bucket {self.bucket_name}. Please check your AWS credentials and permissions.")
+                return False
             else:
                 logger.error(f"Error checking bucket: {e}")
                 return False

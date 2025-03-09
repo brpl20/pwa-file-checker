@@ -45,6 +45,7 @@ def main():
     # Check if credentials are set
     if not os.environ.get('AWS_ACCESS_KEY_ID') or not os.environ.get('AWS_SECRET_ACCESS_KEY'):
         logger.error("AWS credentials not set. Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables or use --aws-key and --aws-secret arguments.")
+        logger.error("Make sure to use ACTUAL AWS credentials, not the placeholder values.")
         return 1
     
     logger.info(f"Starting backup of {args.directory} to S3 bucket {args.bucket}")
