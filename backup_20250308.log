@@ -1,0 +1,11 @@
+2025-03-08 21:42:34,158 - __main__ - INFO - Starting backup of /Users/brpl20/Library/CloudStorage/OneDrive-Pessoal to S3 bucket lzt-backup
+2025-03-08 21:42:37,419 - src.utils.backup - ERROR - Error checking bucket: An error occurred (403) when calling the HeadBucket operation: Forbidden
+2025-03-08 21:42:37,419 - __main__ - ERROR - Backup failed
+2025-03-08 21:44:08,683 - __main__ - INFO - Starting backup of /Users/brpl20/Library/CloudStorage/OneDrive-Pessoal to S3 bucket your-unique-bucket-name
+2025-03-08 21:44:09,558 - src.utils.backup - ERROR - Error checking bucket: An error occurred (403) when calling the HeadBucket operation: Forbidden
+2025-03-08 21:44:09,559 - __main__ - ERROR - Backup failed
+2025-03-08 21:45:10,049 - __main__ - ERROR - AWS credentials not set. Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables or use --aws-key and --aws-secret arguments.
+2025-03-08 21:45:10,049 - __main__ - ERROR - Make sure to use ACTUAL AWS credentials, not the placeholder values.
+2025-03-08 21:45:15,542 - __main__ - INFO - Starting backup of /Users/brpl20/Library/CloudStorage/OneDrive-Pessoal to S3 bucket lzt-backup-personal
+2025-03-08 21:45:16,527 - src.utils.backup - ERROR - Access denied to bucket lzt-backup-personal. Please check your AWS credentials and permissions.
+2025-03-08 21:45:16,527 - __main__ - ERROR - Backup failed
