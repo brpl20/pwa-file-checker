@@ -32,8 +32,16 @@ SYSTEM_FILES = [
     '.checker.py.swp'
 ]
 
+# Junk folders that OneDrive/system creates in BASE_DIR - auto-removed on each run
+AUTOREMOVE_DIRS = [
+    'Imagens',
+    'Anexos',
+    'Documentos',
+    'Arquivos de Microsoft Copilot Chat',
+]
+
 # Thresholds
-INACTIVE_DAYS_THRESHOLD = 30
+INACTIVE_DAYS_THRESHOLD = 730  # 2 years
 SIZE_THRESHOLD_MB = 1000  # Flag folders larger than 1GB
 
 # Derived Paths

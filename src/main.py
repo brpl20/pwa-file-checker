@@ -1,5 +1,4 @@
 # src/main.py
-import os
 import logging
 import sys
 from pathlib import Path
@@ -14,14 +13,12 @@ if str(project_root) not in sys.path:
 try:
     from src.utils.folder_checker import FolderChecker
     from src.utils.file_operations import FileOperations
-    from src.utils.backup import S3Backup
-    from src.config.settings import BASE_DIR, CONSULTAS_DIR
+    from src.config.settings import BASE_DIR, CONSULTAS_DIR, AUTOREMOVE_DIRS
 except ModuleNotFoundError:
     # If running from within src directory
     from utils.folder_checker import FolderChecker
     from utils.file_operations import FileOperations
-    from utils.backup import S3Backup
-    from config.settings import BASE_DIR, CONSULTAS_DIR
+    from config.settings import BASE_DIR, CONSULTAS_DIR, AUTOREMOVE_DIRS
 
 # Custom formatter without INFO: __main__:
 class CustomFormatter(logging.Formatter):
@@ -42,6 +39,14 @@ def main():
     # Initialize our utility classes
     folder_checker = FolderChecker(BASE_DIR)
     file_ops = FileOperations(BASE_DIR)
+
+    print("\n=== Auto-removing junk folders ===")
+    import shutil
+    for dirname in AUTOREMOVE_DIRS:
+        target = BASE_DIR / dirname
+        if target.exists():
+            shutil.rmtree(target)
+            print(f"Removed: {dirname}")
 
     print("\n=== Checking Inactive Folders ===")
     inactive_folders = folder_checker.find_inactive_folders(CONSULTAS_DIR)
@@ -75,78 +80,6 @@ def main():
         print("\nNonconforming folders and files found:")
         for item in nonconforming:
             print(f"- {item}")
-    print("\n=== Checking File Naming Issues ===")
-    issues = file_ops.check_file_naming_issues()
-    
-    if any(issues.values()):  # If any issues were found
-        print("\nFound the following naming issues:")
-        
-        if issues['lowercase_items']:
-            print("\nFiles/Folders with lowercase letters:")
-            for item in issues['lowercase_items']:
-                print(f"- {item}")
-
-        if issues['no_extension_files']:
-            print("\nFiles without extensions:")
-            for item in issues['no_extension_files']:
-                print(f"- {item}")
-
-        if issues['year_month_dot']:
-            print("\nFiles/Folders with pattern 'YYYY.MM.':")
-            for item in issues['year_month_dot']:
-                print(f"- {item}")
-
-        if issues['year_month_dash']:
-            print("\nFiles/Folders with pattern 'YYYY.MM-':")
-            for item in issues['year_month_dash']:
-                print(f"- {item}")
-
-        if issues['year_only']:
-            print("\nFiles/Folders with just year (YYYY):")
-            for item in issues['year_only']:
-                print(f"- {item}")
-
-        if issues['year_dash']:
-            print("\nFiles/Folders with pattern 'YYYY-':")
-            for item in issues['year_dash']:
-                print(f"- {item}")
-
-        if issues['cnis_files']:
-            print("\nFiles/Folders containing 'CNIS':")
-            for item in issues['cnis_files']:
-                print(f"- {item}")
-    else:
-        print("No naming issues found.")
-
-    print("\n=== Backing Up to AWS S3 ===")
-    # Check if AWS credentials are set
-    aws_key = os.environ.get('AWS_ACCESS_KEY_ID')
-    aws_secret = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    
-    if not aws_key or not aws_secret:
-        print("⚠️ AWS credentials not set. Skipping backup.")
-        print("To enable backup, set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables.")
-    else:
-        # Ask user if they want to run the backup
-        try:
-            response = input("Do you want to run the AWS S3 backup? (y/n): ").strip().lower()
-            if response == 'y':
-                # Initialize S3 backup
-                s3_backup = S3Backup(aws_region='us-west-2', bucket_name='lzt-backup-personal')
-                
-                # Backup with a limited number of files for safety
-                max_files = 50
-                print(f"Running backup with max {max_files} files for safety...")
-                if s3_backup.backup_directory(BASE_DIR, max_files=max_files):
-                    print("✓ Successfully backed up to AWS S3")
-                else:
-                    print("✗ Failed to backup to AWS S3")
-                    print("  Check logs for details and verify your AWS credentials have S3 permissions.")
-            else:
-                print("Backup skipped by user.")
-        except KeyboardInterrupt:
-            print("\nBackup skipped due to user interruption.")
-    
     print("\n=== Operation Complete ===\n")
 
 if __name__ == "__main__":

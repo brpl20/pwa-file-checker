@@ -96,13 +96,11 @@ class FileOperations:
         Returns a dictionary with categories of issues and their corresponding paths.
         """
         issues = {
-            'lowercase_items': [],
             'no_extension_files': [],
             'year_month_dot': [],    # 2025.01.
             'year_month_dash': [],   # 2025.01-
             'year_only': [],         # 2025
             'year_dash': [],         # 2025-
-            'cnis_files': []         # CNIS
         }
 
         try:
@@ -114,10 +112,6 @@ class FileOperations:
 
                 # Get relative path for cleaner output
                 rel_path = path.relative_to(self.base_path)
-
-                # Check for lowercase items
-                if str(path.name) != str(path.name).upper():
-                    issues['lowercase_items'].append(str(rel_path))
 
                 # Check files without extension (excluding directories)
                 if path.is_file() and '.' not in path.name:
@@ -133,10 +127,7 @@ class FileOperations:
                     issues['year_only'].append(str(rel_path))
                 elif re.search(r'\d{4}-', name):
                     issues['year_dash'].append(str(rel_path))
-                
-                # Check for CNIS
-                if 'CNIS' in name:
-                    issues['cnis_files'].append(str(rel_path))
+
 
         except Exception as e:
             print(f"Error checking file naming issues: {e}")
