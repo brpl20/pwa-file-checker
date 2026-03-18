@@ -34,14 +34,17 @@ logger = logging.getLogger(__name__)
 
 
 def run_checks() -> dict:
-    """Run all checks and return structured results."""
+    """Run all checks and return structured results (mirrors src/main.py)."""
+    folder_checker = FolderChecker(BASE_DIR)
+    file_ops = FileOperations(BASE_DIR)
+
     results = {
         "timestamp": datetime.now().isoformat(),
         "base_dir": str(BASE_DIR),
         "checks": {},
     }
 
-    # 0. Auto-remove junk folders
+    # 1. Auto-remove junk folders
     import shutil
     removed = []
     for dirname in AUTOREMOVE_DIRS:
@@ -51,9 +54,8 @@ def run_checks() -> dict:
             removed.append(dirname)
     results["checks"]["autoremoved_folders"] = removed
 
-    # 1. Inactive folders
+    # 2. Inactive folders
     try:
-        folder_checker = FolderChecker(BASE_DIR)
         inactive = folder_checker.find_inactive_folders(CONSULTAS_DIR)
         results["checks"]["inactive_folders"] = {
             "count": len(inactive),
@@ -62,9 +64,8 @@ def run_checks() -> dict:
     except Exception as e:
         results["checks"]["inactive_folders"] = {"error": str(e)}
 
-    # 2. Folder sizes
+    # 3. Folder sizes
     try:
-        file_ops = FileOperations(BASE_DIR)
         folder_sizes = file_ops.get_folder_sizes()
         top_10 = sorted(folder_sizes.items(), key=lambda x: x[1], reverse=True)[:10]
         results["checks"]["folder_sizes"] = {
@@ -73,17 +74,15 @@ def run_checks() -> dict:
     except Exception as e:
         results["checks"]["folder_sizes"] = {"error": str(e)}
 
-    # 3. Model file replacement
+    # 4. Model file replacement
     try:
-        file_ops = FileOperations(BASE_DIR)
         success = file_ops.replace_model_files()
         results["checks"]["model_files_replaced"] = {"success": success}
     except Exception as e:
         results["checks"]["model_files_replaced"] = {"error": str(e)}
 
-    # 4. Nonconforming names
+    # 5. Nonconforming names
     try:
-        file_ops = FileOperations(BASE_DIR)
         nonconforming = file_ops.check_nonconforming_names()
         results["checks"]["nonconforming_names"] = {
             "count": len(nonconforming),
@@ -91,17 +90,6 @@ def run_checks() -> dict:
         }
     except Exception as e:
         results["checks"]["nonconforming_names"] = {"error": str(e)}
-
-    # 5. File naming issues
-    try:
-        file_ops = FileOperations(BASE_DIR)
-        issues = file_ops.check_file_naming_issues()
-        results["checks"]["file_naming_issues"] = {
-            category: {"count": len(items), "items": items}
-            for category, items in issues.items()
-        }
-    except Exception as e:
-        results["checks"]["file_naming_issues"] = {"error": str(e)}
 
     return results
 
