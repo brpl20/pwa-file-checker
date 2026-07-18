@@ -8,3 +8,8 @@ lib/
 .venv/
 latest_results.json
 cron_runner.log
+audio_latest_results.json
+audio_daily_runner.log
+__pycache__/
+*.pyc
+*.log

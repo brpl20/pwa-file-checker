@@ -48,6 +48,21 @@ SIZE_THRESHOLD_MB = 1000  # Flag folders larger than 1GB
 EXCLUDED_CONSULTAS_FOLDERS = os.getenv('EXCLUDED_CONSULTAS_FOLDERS', '#ENCERRADOS').split(',')
 CONSULTAS_DIR = BASE_DIR / 'AAA --- CONSULTAS'
 
+# === Audio transcription / summarization (daily runner) ===
+ATENDIMENTO_DIR_NAME = 'ATENDIMENTO'
+AUDIO_EXTENSIONS = ['.m4a', '.mp3', '.wav', '.ogg', '.aac', '.flac']
+TRANSCRIPT_SUFFIX = '.transcricao.txt'
+REPORT_SUFFIX = '.relatorio.md'
+
+WHISPER_MODEL = os.getenv('WHISPER_MODEL', 'small')
+WHISPER_DEVICE = os.getenv('WHISPER_DEVICE', 'cpu')
+WHISPER_COMPUTE_TYPE = os.getenv('WHISPER_COMPUTE_TYPE', 'int8')
+WHISPER_LANGUAGE = os.getenv('WHISPER_LANGUAGE', 'pt')
+
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
+OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'anthropic/claude-sonnet-4')
+OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
+
 # Validation
 def validate_paths():
     """Validate that all required paths exist."""

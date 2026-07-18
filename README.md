@@ -40,9 +40,59 @@ cat cron_runner.log
 journalctl --user -u pwa-file-checker.service
 ```
 
-## Configuração
+## Audio Daily Runner (transcrição + relatório de atendimentos)
 
-- `.env` - Define `BASE_DIR` (diretório raiz dos arquivos)
+Roda diariamente às 04:00, varre `BASE_DIR/<CLIENTE (XXX)>/ATENDIMENTO/` por arquivos de áudio, transcreve com **faster-whisper** localmente (sem expor o áudio) e gera um relatório estruturado via **OpenRouter**.
+
+### Saída ao lado do áudio
+
+```
+ATENDIMENTO/
+├── audio-atendimento-2026-05-06.m4a
+├── audio-atendimento-2026-05-06.m4a.transcricao.txt
+└── audio-atendimento-2026-05-06.m4a.relatorio.md
+```
+
+Idempotente: pula áudios cujo `.transcricao.txt` e `.relatorio.md` já existem e estão mais recentes que o áudio.
+
+### Configuração
+
+No `.env`:
+```
+WHISPER_MODEL=small            # tiny, base, small, medium, large-v3
+WHISPER_DEVICE=cpu             # cpu ou cuda
+WHISPER_COMPUTE_TYPE=int8      # int8 (rápido CPU) | float16 (GPU)
+WHISPER_LANGUAGE=pt
+
+OPENROUTER_API_KEY=sk-or-...   # https://openrouter.ai/keys
+OPENROUTER_MODEL=anthropic/claude-sonnet-4
+```
+
+Sem `OPENROUTER_API_KEY` o relatório é pulado mas a transcrição continua funcionando.
+
+### Comandos úteis
+
+```bash
+# Executar manualmente
+.venv/bin/python audio_daily_runner.py
+systemctl --user start pwa-audio-transcriber.service
+
+# Ver status do timer
+systemctl --user list-timers | grep audio
+
+# Logs
+tail -f audio_daily_runner.log
+journalctl --user -u pwa-audio-transcriber.service -f
+```
+
+### LGPD
+
+- **Áudio**: 100% local. Whisper roda no seu computador, áudio nunca sai.
+- **Texto da transcrição**: enviado à OpenRouter para gerar o resumo. Trate o modelo escolhido como você trataria um terceiro com acesso aos dados do cliente. Para conformidade total, use modelo com acordo DPA ou rode resumo localmente também (Ollama, futuramente).
+
+## Configuração geral
+
+- `.env` - Define `BASE_DIR` (diretório raiz dos arquivos), webhook, chaves de API
 - `src/config/settings.py` - Constantes e thresholds
 - Webhook N8N configurado em `cron_runner.py`
 
